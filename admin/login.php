@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Portal — OGGENTLEME</title>
-    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+    <link rel="icon" type="image/png" href="images/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after {
@@ -160,16 +160,38 @@
         </div>
 
         <form class="admin-form" action="login-process.php" method="POST">
-            <div class="form-group">
-                <label for="email">Admin Email</label>
-                <input type="email" id="email" name="email" placeholder="chetan@gmail.com" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="••••••••" required>
-            </div>
-            <button type="submit" class="btn-admin-submit">Login</button>
-        </form>
+        <div class="form-group">
+            <label for="email">Admin Email</label>
+            <input type="email" id="email" name="email"
+                placeholder="admin@gmail.com" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <button type="submit" class="btn-admin-submit">Login</button>
+    </form>
+
+    <?php
+    $error = $_GET['error'] ?? '';
+
+    $messages = [
+        'empty_fields'        => 'Please enter your email and password.',
+        'invalid_email'       => 'Please enter a valid email address.',
+        'invalid_credentials' => 'Invalid email or password.',
+        'invalid_request'     => 'Invalid request.',
+        'server_error'        => 'Something went wrong. Please try again.'
+    ];
+
+    if (isset($messages[$error])) {
+        echo '<div class="login-error">' .
+            htmlspecialchars($messages[$error]) .
+            '</div>';
+    }
+    ?>
+
 
         <div class="admin-footer-link">
             <a href="../index.html">&larr; Return to Store</a>
