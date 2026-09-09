@@ -6,6 +6,166 @@
     <title>OGGENTLEME — Fine Masculine Luxury</title>
     <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        (function() {
+            emailjs.init("tbh4MzQaE0W5pVfQT"); // Your Public Key
+        })();
+
+        // EmailJS Configuration
+        const EMAILJS_SERVICE_ID = 'service_037qe38';
+        const EMAILJS_TEMPLATE_ID = 'template_5o44yuh';
+
+        // 1. Calculate Cart Totals
+        function calculateCartTotals() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.13; // 13% VAT
+            const shipping = subtotal > 0 ? 150 : 0; // Flat delivery fee in Rs.
+            const grandTotal = subtotal + tax + shipping;
+
+            return {
+                cart,
+                subtotal,
+                tax,
+                shipping,
+                grandTotal
+            };
+        }
+
+        // 2. Open and Close Modal Functions
+        function openCheckout() {
+            renderCartModal();
+            document.getElementById('checkoutModal').style.display = 'flex';
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkoutModal').style.display = 'none';
+        }
+
+        // 3. Render Cart Items & Bill Breakdown inside Modal
+        function renderCartModal() {
+            const { cart, subtotal, tax, shipping, grandTotal } = calculateCartTotals();
+            const itemsList = document.getElementById('cartItemsList');
+
+            if (cart.length === 0) {
+                itemsList.innerHTML = `<p style="font-size: 11px; color: var(--text-secondary); padding: 20px 0;">Your bag is currently empty.</p>`;
+            } else {
+                itemsList.innerHTML = cart.map((item, index) => `
+                    <div class="cart-item-row">
+                        <div>
+                            <strong>${item.name}</strong>
+                            <div style="color: var(--text-secondary); font-size: 9px;">Qty: ${item.quantity}</div>
+                        </div>
+                        <span>Rs. ${(item.price * item.quantity).toLocaleString()}</span>
+                    </div>
+                `).join('');
+            }
+
+            // Update Bill Summary Elements
+            document.getElementById('billSubtotal').textContent = `Rs. ${subtotal.toLocaleString()}`;
+            document.getElementById('billTax').textContent = `Rs. ${tax.toLocaleString()}`;
+            document.getElementById('billShipping').textContent = `Rs. ${shipping.toLocaleString()}`;
+            document.getElementById('billGrandTotal').textContent = `Rs. ${grandTotal.toLocaleString()}`;
+        }
+
+        // 4. Main Checkout Handler
+        async function processCheckout(event) {
+            event.preventDefault();
+
+            const { cart, subtotal, tax, shipping, grandTotal } = calculateCartTotals();
+
+            if (cart.length === 0) {
+                alert("Your bag is currently empty.");
+                return;
+            }
+
+            // Format item list for the email body
+            const orderSummary = cart.map(item => 
+                `- ${item.name} | Qty: ${item.quantity} | Unit: Rs. ${item.price.toLocaleString()} | Total: Rs. ${(item.price * item.quantity).toLocaleString()}`
+            ).join("\n");
+
+            // Generate Order Identifier
+            const orderId = "OG-" + Math.floor(100000 + Math.random() * 900000);
+
+            // Map form values to EmailJS Template Variables
+            const templateParams = {
+                order_id: orderId,
+                customer_name: document.getElementById('custName').value,
+                customer_email: document.getElementById('custEmail').value,
+                customer_phone: document.getElementById('custPhone').value,
+                customer_address: document.getElementById('custAddress').value,
+                order_summary: orderSummary,
+                subtotal: `Rs. ${subtotal.toLocaleString()}`,
+                tax: `Rs. ${tax.toLocaleString()}`,
+                shipping: `Rs. ${shipping.toLocaleString()}`,
+                grand_total: `Rs. ${grandTotal.toLocaleString()}`
+            };
+
+            try {
+                // Send email via EmailJS
+                const response = await emailjs.send(
+                    EMAILJS_SERVICE_ID, 
+                    EMAILJS_TEMPLATE_ID, 
+                    templateParams
+                );
+
+                if (response.status === 200) {
+                    // Store order record in LocalStorage for Admin Dashboard
+                    const existingOrders = JSON.parse(localStorage.getItem('orders')) || [];
+                    existingOrders.push({
+                        ...templateParams,
+                        items: cart,
+                        status: 'Pending',
+                        date: new Date().toLocaleDateString()
+                    });
+                    localStorage.setItem('orders', JSON.stringify(existingOrders));
+
+                    // Clear Cart & Reset UI Counter
+                    localStorage.setItem('cart', JSON.stringify([]));
+                    updateCartBadge();
+                    closeCheckout();
+
+                    alert(`Order Placed Successfully!\nOrder ID: ${orderId}\nA confirmation email has been dispatched.`);
+                    event.target.reset();
+                }
+            } catch (error) {
+                console.error('EmailJS Checkout Error:', error);
+                alert('Failed to submit order. Please check your network connection and try again.');
+            }
+        }
+
+        // 5. Add to Cart Logic with Price Mapping
+        function addToBag(productName, price) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            
+            const existingIndex = cart.findIndex(item => item.name === productName);
+            if (existingIndex > -1) {
+                cart[existingIndex].quantity += 1;
+            } else {
+                cart.push({ name: productName, price: price, quantity: 1 });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartBadge();
+            
+            alert(`"${productName}" has been added to your shopping bag.`);
+        }
+
+        function updateCartBadge() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const badge = document.querySelector('.cart-badge');
+            if (badge) badge.textContent = totalCount;
+        }
+
+        // Update badge state on initial load
+        document.addEventListener('DOMContentLoaded', updateCartBadge);
+    </script>
+
     <style>
         *, *::before, *::after {
             margin: 0;
@@ -662,6 +822,91 @@
             min-height: 100px;
         }
 
+        /* --- CHECKOUT MODAL STYLES --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(17, 17, 17, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-container {
+            background: var(--bg-main);
+            border: 1px solid var(--borders);
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            padding: 40px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .cart-items-list {
+            max-height: 220px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--borders);
+        }
+
+        .cart-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-top: 1px solid rgba(216, 195, 154, 0.3);
+            font-size: 11px;
+        }
+
+        .bill-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: var(--cards);
+            padding: 16px;
+            border: 1px solid var(--borders);
+        }
+
+        .bill-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        .bill-row.total-row {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--brand-gold);
+            border-top: 1px solid var(--borders);
+            padding-top: 8px;
+            margin-top: 4px;
+        }
+
         /* --- FOOTER --- */
         footer {
             background-color: var(--dark-section);
@@ -730,6 +975,7 @@
             .stat-item:nth-child(4) { border-top: 1px solid var(--borders); border-right: none; }
             .product-grid { grid-template-columns: 1fr; }
             .form-row { grid-template-columns: 1fr; }
+            .modal-body { grid-template-columns: 1fr; }
             footer { flex-direction: column; gap: 20px; text-align: center; padding: 40px 20px; }
         }
     </style>
@@ -747,7 +993,7 @@
         </ul>
         <div class="nav-actions">
             <a href="login.html" class="nav-auth-link">Sign In</a>
-            <button class="nav-cart-btn" onclick="alert('Bag is currently empty.')">
+            <button class="nav-cart-btn" onclick="openCheckout()">
                 Bag <span class="cart-badge">0</span>
             </button>
         </div>
@@ -820,7 +1066,7 @@
                     <p class="product-notes">Oud &bull; Dark Amber &bull; Vetiver</p>
                     <div class="product-footer-row">
                         <span class="product-price">Rs. 3,800</span>
-                        <button class="btn-add" onclick="addToBag('Noir Absolu')">Add to Bag</button>
+                        <button class="btn-add" onclick="addToBag('Noir Absolu', 3800)">Add to Bag</button>
                     </div>
                 </div>
             </div>
@@ -836,7 +1082,7 @@
                     <p class="product-notes">Sandalwood &bull; White Musk &bull; Iris</p>
                     <div class="product-footer-row">
                         <span class="product-price">Rs. 3,200</span>
-                        <button class="btn-add" onclick="addToBag('Blanc Santal')">Add to Bag</button>
+                        <button class="btn-add" onclick="addToBag('Blanc Santal', 3200)">Add to Bag</button>
                     </div>
                 </div>
             </div>
@@ -853,7 +1099,7 @@
                     <p class="product-notes">Matte Black &bull; Gold Indices</p>
                     <div class="product-footer-row">
                         <span class="product-price">Rs. 18,500</span>
-                        <button class="btn-add" onclick="addToBag('Chronometre Noir')">Add to Bag</button>
+                        <button class="btn-add" onclick="addToBag('Chronometre Noir', 18500)">Add to Bag</button>
                     </div>
                 </div>
             </div>
@@ -869,7 +1115,7 @@
                     <p class="product-notes">Espresso Leather &bull; Gold Foil Monogram</p>
                     <div class="product-footer-row">
                         <span class="product-price">Rs. 4,500</span>
-                        <button class="btn-add" onclick="addToBag('Sartorial Bifold Wallet')">Add to Bag</button>
+                        <button class="btn-add" onclick="addToBag('Sartorial Bifold Wallet', 4500)">Add to Bag</button>
                     </div>
                 </div>
             </div>
@@ -885,7 +1131,7 @@
                     <p class="product-notes">Agarwood &bull; Rose Oud &bull; Saffron</p>
                     <div class="product-footer-row">
                         <span class="product-price">Rs. 4,900</span>
-                        <button class="btn-add" onclick="addToBag('Oud Royale')">Add to Bag</button>
+                        <button class="btn-add" onclick="addToBag('Oud Royale', 4900)">Add to Bag</button>
                     </div>
                 </div>
             </div>
@@ -901,7 +1147,7 @@
                     <p class="product-notes">Brushed Steel &bull; Ivory Dial</p>
                     <div class="product-footer-row">
                         <span class="product-price">Rs. 14,200</span>
-                        <button class="btn-add" onclick="addToBag('Monolith Timepiece')">Add to Bag</button>
+                        <button class="btn-add" onclick="addToBag('Monolith Timepiece', 14200)">Add to Bag</button>
                     </div>
                 </div>
             </div>
@@ -980,6 +1226,72 @@
         </form>
     </section>
 
+    <!-- CHECKOUT MODAL -->
+    <div id="checkoutModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <button class="modal-close" onclick="closeCheckout()">&times;</button>
+            
+            <div class="modal-body">
+                <!-- Left: Order Summary -->
+                <div class="order-summary-side">
+                    <span class="section-eyebrow">Your Bag</span>
+                    <h3 class="section-title" style="font-size: 28px;">Order Summary</h3>
+                    
+                    <div id="cartItemsList" class="cart-items-list">
+                        <!-- Dynamic items rendered via JS -->
+                    </div>
+
+                    <div class="bill-breakdown">
+                        <div class="bill-row">
+                            <span>Subtotal</span>
+                            <span id="billSubtotal">Rs. 0</span>
+                        </div>
+                        <div class="bill-row">
+                            <span>Tax (13% VAT)</span>
+                            <span id="billTax">Rs. 0</span>
+                        </div>
+                        <div class="bill-row">
+                            <span>Shipping</span>
+                            <span id="billShipping">Rs. 0</span>
+                        </div>
+                        <div class="bill-row total-row">
+                            <span>Grand Total</span>
+                            <span id="billGrandTotal">Rs. 0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Customer Shipping Form -->
+                <div class="checkout-form-side">
+                    <span class="section-eyebrow">Delivery Details</span>
+                    <h3 class="section-title" style="font-size: 28px;">Shipping Address</h3>
+                    
+                    <form id="checkoutForm" onsubmit="processCheckout(event)">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="custName" placeholder="Rohan Sharma" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" id="custEmail" placeholder="you@example.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="tel" id="custPhone" placeholder="98XXXXXXXX" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Shipping Address</label>
+                            <textarea id="custAddress" placeholder="Street, City, District" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">Place Order via Email</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- FOOTER -->
     <footer>
         <div class="footer-logo">OGGENTLEME<span>.</span></div>
@@ -991,7 +1303,7 @@
         </div>
     </footer>
 
-    <!-- INTERACTION SCRIPT -->
+    <!-- CATALOG FILTER & FORM SCRIPTS -->
     <script>
         function filterCatalog(category, btn) {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1005,13 +1317,6 @@
                     card.style.display = 'none';
                 }
             });
-        }
-
-        let cartCount = 0;
-        function addToBag(productName) {
-            cartCount++;
-            document.querySelector('.cart-badge').textContent = cartCount;
-            alert(`"${productName}" has been added to your shopping bag.`);
         }
 
         function handleFormSubmit(e) {
