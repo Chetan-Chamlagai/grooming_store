@@ -76,6 +76,6 @@ $stmt->close();
 $conn->close();
 
 // Go to dashboard
-header("Location: dashboard.html");
+header("Location: dashboard.php");
 exit;
 ?>
