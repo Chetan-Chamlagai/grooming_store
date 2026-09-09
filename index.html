@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OGGENTLEME — Fine Masculine Luxury</title>
+    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-main: #F8F6F1;
+            --text-primary: #111111;
+            --text-secondary: #555555;
+            --brand-gold: #B89455;
+            --dark-section: #111111;
+            --gold-on-dark: #B89455;
+            --cards: #FFFFFF;
+            --borders: #D8C39A;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 60px;
+            background: rgba(248, 246, 241, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--borders);
+        }
+
+        .nav-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 400;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-logo img {
+            height: 38px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .nav-logo span {
+            color: var(--brand-gold);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-size: 10px;
+            font-weight: 300;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--brand-gold);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-auth-link {
+            font-size: 9px;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-auth-link:hover {
+            color: var(--brand-gold);
+        }
+
+        .nav-cart-btn {
+            background: none;
+            border: none;
+            font-size: 10px;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+        }
+
+        .cart-badge {
+            background-color: var(--brand-gold);
+            color: #FFFFFF;
+            font-size: 8px;
+            padding: 2px 6px;
+            border-radius: 50%;
+        }
+
+        /* --- HERO SECTION --- */
+        header.hero {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding-top: 90px;
+        }
+
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 80px 60px;
+        }
+
+        .hero-eyebrow {
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            color: var(--brand-gold);
+            margin-bottom: 24px;
+        }
+
+        .hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 64px;
+            font-weight: 300;
+            line-height: 1.1;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+        }
+
+        .hero-title em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .hero-desc {
+            font-size: 12px;
+            font-weight: 300;
+            line-height: 2.2;
+            color: var(--text-secondary);
+            max-width: 400px;
+            margin-bottom: 40px;
+            letter-spacing: 0.05em;
+        }
+
+        .hero-cta-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn-primary {
+            padding: 16px 40px;
+            background: var(--text-primary);
+            color: var(--bg-main);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border: 1px solid var(--text-primary);
+            display: inline-block;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: var(--brand-gold);
+            border-color: var(--brand-gold);
+            color: #FFFFFF;
+        }
+
+        .btn-outline {
+            padding: 16px 40px;
+            background: transparent;
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border: 1px solid var(--borders);
+            display: inline-block;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s, color 0.3s;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--brand-gold);
+            color: var(--brand-gold);
+        }
+
+        .hero-visual {
+            background-color: var(--dark-section);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-monogram-box {
+            width: 320px;
+            height: 440px;
+            border: 1px solid var(--borders);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .hero-monogram-box h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px;
+            color: var(--gold-on-dark);
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            margin-bottom: 12px;
+        }
+
+        .hero-monogram-box p {
+            font-size: 8px;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        /* --- STATS BAR --- */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border-top: 1px solid var(--borders);
+            border-bottom: 1px solid var(--borders);
+            background: var(--cards);
+        }
+
+        .stat-item {
+            padding: 36px 20px;
+            text-align: center;
+            border-right: 1px solid var(--borders);
+        }
+
+        .stat-item:last-child {
+            border-right: none;
+        }
+
+        .stat-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 36px;
+            font-weight: 300;
+            color: var(--text-primary);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            font-size: 8px;
+            font-weight: 400;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        /* --- CATALOG SECTION --- */
+        section.catalog {
+            padding: 100px 60px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-eyebrow {
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            color: var(--brand-gold);
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 42px;
+            font-weight: 300;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .section-desc {
+            font-size: 11px;
+            font-weight: 300;
+            color: var(--text-secondary);
+            max-width: 460px;
+            margin: 0 auto;
+            letter-spacing: 0.05em;
+        }
+
+        .filter-bar {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 50px;
+        }
+
+        .filter-btn {
+            padding: 10px 24px;
+            font-size: 9px;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            background: transparent;
+            border: 1px solid var(--borders);
+            color: var(--text-secondary);
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--text-primary);
+            color: #FFFFFF;
+            border-color: var(--text-primary);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .product-card {
+            background: var(--cards);
+            border: 1px solid var(--borders);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .product-img-area {
+            width: 100%;
+            aspect-ratio: 4/5;
+            background: var(--bg-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--borders);
+            position: relative;
+        }
+
+        .product-tag {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: var(--brand-gold);
+            color: #FFFFFF;
+            font-size: 8px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            padding: 4px 10px;
+        }
+
+        .product-silhouette {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px;
+            color: var(--borders);
+            letter-spacing: 0.15em;
+        }
+
+        .product-info {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        .product-category {
+            font-size: 8px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .product-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            font-weight: 400;
+            color: var(--text-primary);
+            letter-spacing: 0.03em;
+        }
+
+        .product-notes {
+            font-size: 10px;
+            color: var(--text-secondary);
+            font-weight: 300;
+            margin-bottom: 12px;
+        }
+
+        .product-footer-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid rgba(216, 195, 154, 0.3);
+        }
+
+        .product-price {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--brand-gold);
+        }
+
+        .btn-add {
+            background: transparent;
+            border: 1px solid var(--text-primary);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            font-size: 8px;
+            font-weight: 400;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: background 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        .btn-add:hover {
+            background: var(--brand-gold);
+            border-color: var(--brand-gold);
+            color: #FFFFFF;
+        }
+
+        /* --- DARK SHOWCASE SECTION --- */
+        section.dark-showcase {
+            background-color: var(--dark-section);
+            color: #FFFFFF;
+            padding: 120px 60px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .dark-showcase-content h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px;
+            font-weight: 300;
+            line-height: 1.2;
+            margin-bottom: 24px;
+            color: #FFFFFF;
+        }
+
+        .dark-showcase-content h2 span {
+            color: var(--gold-on-dark);
+            font-style: italic;
+        }
+
+        .dark-showcase-content p {
+            font-size: 11px;
+            font-weight: 300;
+            color: #A09A8E;
+            line-height: 2.2;
+            margin-bottom: 40px;
+            letter-spacing: 0.05em;
+        }
+
+        .dark-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .dark-feature-item h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            color: var(--gold-on-dark);
+            margin-bottom: 8px;
+            font-weight: 400;
+        }
+
+        .dark-feature-item p {
+            font-size: 10px;
+            color: #8A857B;
+            margin-bottom: 0;
+            line-height: 1.8;
+        }
+
+        .dark-showcase-visual {
+            border: 1px solid var(--borders);
+            height: 480px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.01);
+        }
+
+        .dark-monogram-emblem {
+            text-align: center;
+        }
+
+        .dark-monogram-emblem span {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 72px;
+            color: var(--gold-on-dark);
+            font-weight: 300;
+            display: block;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+        }
+
+        .dark-monogram-emblem small {
+            font-size: 8px;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            color: #8A857B;
+        }
+
+        /* --- CONTACT / INQUIRY SECTION --- */
+        section.inquiry {
+            padding: 100px 60px;
+            background-color: var(--bg-main);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: start;
+        }
+
+        .inquiry-info h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 42px;
+            font-weight: 300;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+        }
+
+        .inquiry-info p {
+            font-size: 11px;
+            font-weight: 300;
+            color: var(--text-secondary);
+            line-height: 2.1;
+            margin-bottom: 36px;
+            letter-spacing: 0.04em;
+        }
+
+        .inquiry-detail {
+            margin-bottom: 20px;
+        }
+
+        .inquiry-detail-label {
+            font-size: 8px;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--brand-gold);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .inquiry-detail-val {
+            font-size: 12px;
+            color: var(--text-primary);
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+
+        .inquiry-form {
+            background: var(--cards);
+            border: 1px solid var(--borders);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 8px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            background: var(--bg-main);
+            border: 1px solid var(--borders);
+            padding: 12px 16px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            color: var(--text-primary);
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border-color: var(--brand-gold);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background-color: var(--dark-section);
+            color: #FFFFFF;
+            padding: 50px 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid rgba(216, 195, 154, 0.15);
+        }
+
+        .footer-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #FFFFFF;
+        }
+
+        .footer-logo span {
+            color: var(--gold-on-dark);
+        }
+
+        .footer-copy {
+            font-size: 9px;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            color: #8A857B;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .footer-links a {
+            font-size: 9px;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #8A857B;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--gold-on-dark);
+        }
+
+        /* --- RESPONSIVE MEDIA QUERIES --- */
+        @media (max-width: 1024px) {
+            nav { padding: 20px 30px; }
+            .hero { grid-template-columns: 1fr; min-height: auto; }
+            .hero-content { padding: 100px 30px 60px; }
+            .hero-visual { min-height: 350px; }
+            .product-grid { grid-template-columns: repeat(2, 1fr); }
+            .dark-showcase { grid-template-columns: 1fr; padding: 80px 30px; }
+            .inquiry { grid-template-columns: 1fr; padding: 80px 30px; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .stats-bar { grid-template-columns: repeat(2, 1fr); }
+            .stat-item:nth-child(2) { border-right: none; }
+            .stat-item:nth-child(3) { border-top: 1px solid var(--borders); }
+            .stat-item:nth-child(4) { border-top: 1px solid var(--borders); border-right: none; }
+            .product-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            footer { flex-direction: column; gap: 20px; text-align: center; padding: 40px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVIGATION -->
+    <nav>
+        <a class="nav-logo" href="#"><img src="images/logo.png" alt="Oggentleme Logo"><span>.</span></a>
+        <ul class="nav-links">
+            <li><a href="#home" class="active">Home</a></li>
+            <li><a href="#catalog">Collection</a></li>
+            <li><a href="#about">Philosophy</a></li>
+            <li><a href="#inquiry">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            <a href="login.html" class="nav-auth-link">Sign In</a>
+            <button class="nav-cart-btn" onclick="alert('Bag is currently empty.')">
+                Bag <span class="cart-badge">0</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="hero" id="home">
+        <div class="hero-content">
+            <span class="hero-eyebrow">Fine Masculine Luxury &bull; Est. 2026</span>
+            <h1 class="hero-title">The Art of<br><em>Quiet</em><br>Distinction</h1>
+            <p class="hero-desc">Crafted for the modern gentleman who speaks little and commands everything. A curated assembly of rare fragrances, tailored timepieces, and supple leatherwork.</p>
+            <div class="hero-cta-group">
+                <a href="#catalog" class="btn-primary">Explore Collection</a>
+                <a href="#inquiry" class="btn-outline">Inquire Bespoke</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="hero-monogram-box">
+                <h2>OG</h2>
+                <p>Signature Monogram</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- STATS BAR -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-number">09</span>
+            <span class="stat-label">Signature Scents</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">12</span>
+            <span class="stat-label">Rare Ingredients</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">48h</span>
+            <span class="stat-label">Lasting Depth</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">100%</span>
+            <span class="stat-label">Handcrafted Quality</span>
+        </div>
+    </div>
+
+    <!-- CATALOG SECTION -->
+    <section class="catalog" id="catalog">
+        <div class="section-header">
+            <span class="section-eyebrow">The Masterpieces</span>
+            <h2 class="section-title">Curated Essentials</h2>
+            <p class="section-desc">Each artifact is developed with uncompromising architectural precision and uncompromising masculine elegance.</p>
+        </div>
+
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterCatalog('all', this)">All Items</button>
+            <button class="filter-btn" onclick="filterCatalog('fragrance', this)">Fragrances</button>
+            <button class="filter-btn" onclick="filterCatalog('timepiece', this)">Timepieces</button>
+            <button class="filter-btn" onclick="filterCatalog('leather', this)">Leather Goods</button>
+        </div>
+
+        <div class="product-grid" id="productGrid">
+            <!-- Item 1 -->
+            <div class="product-card" data-category="fragrance">
+                <div class="product-img-area">
+                    <span class="product-tag">Bestseller</span>
+                    <span class="product-silhouette">OG &bull; 01</span>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Eau de Parfum &bull; 50ml</span>
+                    <h3 class="product-name">Noir Absolu</h3>
+                    <p class="product-notes">Oud &bull; Dark Amber &bull; Vetiver</p>
+                    <div class="product-footer-row">
+                        <span class="product-price">Rs. 3,800</span>
+                        <button class="btn-add" onclick="addToBag('Noir Absolu')">Add to Bag</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="product-card" data-category="fragrance">
+                <div class="product-img-area">
+                    <span class="product-silhouette">OG &bull; 02</span>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Eau de Parfum &bull; 50ml</span>
+                    <h3 class="product-name">Blanc Santal</h3>
+                    <p class="product-notes">Sandalwood &bull; White Musk &bull; Iris</p>
+                    <div class="product-footer-row">
+                        <span class="product-price">Rs. 3,200</span>
+                        <button class="btn-add" onclick="addToBag('Blanc Santal')">Add to Bag</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="product-card" data-category="timepiece">
+                <div class="product-img-area">
+                    <span class="product-tag">Limited</span>
+                    <span class="product-silhouette">OG &bull; 03</span>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Automatic &bull; Sapphire Glass</span>
+                    <h3 class="product-name">Chronometre Noir</h3>
+                    <p class="product-notes">Matte Black &bull; Gold Indices</p>
+                    <div class="product-footer-row">
+                        <span class="product-price">Rs. 18,500</span>
+                        <button class="btn-add" onclick="addToBag('Chronometre Noir')">Add to Bag</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item 4 -->
+            <div class="product-card" data-category="leather">
+                <div class="product-img-area">
+                    <span class="product-silhouette">OG &bull; 04</span>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Full-Grain Calfskin</span>
+                    <h3 class="product-name">Sartorial Bifold Wallet</h3>
+                    <p class="product-notes">Espresso Leather &bull; Gold Foil Monogram</p>
+                    <div class="product-footer-row">
+                        <span class="product-price">Rs. 4,500</span>
+                        <button class="btn-add" onclick="addToBag('Sartorial Bifold Wallet')">Add to Bag</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item 5 -->
+            <div class="product-card" data-category="fragrance">
+                <div class="product-img-area">
+                    <span class="product-silhouette">OG &bull; 05</span>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Eau de Parfum &bull; 50ml</span>
+                    <h3 class="product-name">Oud Royale</h3>
+                    <p class="product-notes">Agarwood &bull; Rose Oud &bull; Saffron</p>
+                    <div class="product-footer-row">
+                        <span class="product-price">Rs. 4,900</span>
+                        <button class="btn-add" onclick="addToBag('Oud Royale')">Add to Bag</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item 6 -->
+            <div class="product-card" data-category="timepiece">
+                <div class="product-img-area">
+                    <span class="product-silhouette">OG &bull; 06</span>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">Minimalist &bull; Italian Leather</span>
+                    <h3 class="product-name">Monolith Timepiece</h3>
+                    <p class="product-notes">Brushed Steel &bull; Ivory Dial</p>
+                    <div class="product-footer-row">
+                        <span class="product-price">Rs. 14,200</span>
+                        <button class="btn-add" onclick="addToBag('Monolith Timepiece')">Add to Bag</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DARK SHOWCASE SECTION -->
+    <section class="dark-showcase" id="about">
+        <div class="dark-showcase-content">
+            <span class="section-eyebrow">Architectural Heritage</span>
+            <h2>Designed for those who <span>command</span> the room in silence.</h2>
+            <p>At Oggentleme, we reject excess. Every bottle, casing, and strap is subjected to rigorous material selection processes. Our formulations draw from rare botanical extractions, yielding an enduring trail of sophistication.</p>
+            <div class="dark-features">
+                <div class="dark-feature-item">
+                    <h4>01. Raw Ingredients</h4>
+                    <p>Sourced from sustainable private reserves across the globe.</p>
+                </div>
+                <div class="dark-feature-item">
+                    <h4>02. Structural Balance</h4>
+                    <p>Proportioned to feel weighted and anchored in the hand.</p>
+                </div>
+            </div>
+        </div>
+        <div class="dark-showcase-visual">
+            <div class="dark-monogram-emblem">
+                <span>OG</span>
+                <small>Excellence in Restraint</small>
+            </div>
+        </div>
+    </section>
+
+    <!-- INQUIRY SECTION -->
+    <section class="inquiry" id="inquiry">
+        <div class="inquiry-info">
+            <span class="section-eyebrow">Personal Concierge</span>
+            <h2>Get in Touch</h2>
+            <p>Whether you require assistance with a bespoke fragrance selection, custom leather engraving, or order inquiries, our concierge is at your service.</p>
+            
+            <div class="inquiry-detail">
+                <span class="inquiry-detail-label">Direct Line</span>
+                <span class="inquiry-detail-val">oggentlemeinfo@gmail.com</span>
+            </div>
+            <div class="inquiry-detail" style="margin-top: 16px;">
+                <span class="inquiry-detail-label">Location</span>
+                <span class="inquiry-detail-val">Damak, Jhapa, Nepal</span>
+            </div>
+        </div>
+        <form class="inquiry-form" onsubmit="handleFormSubmit(event)">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" placeholder="Rohan" required>
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" placeholder="Sharma">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+                <label>Subject / Interest</label>
+                <select>
+                    <option>General Inquiry</option>
+                    <option>Bespoke Consultation</option>
+                    <option>Order Status</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Message</label>
+                <textarea placeholder="Write your message here..." required></textarea>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%;">Send Inquiry</button>
+        </form>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-logo">OGGENTLEME<span>.</span></div>
+        <div class="footer-copy">&copy; 2026 Oggentleme. All rights reserved.</div>
+        <div class="footer-links">
+            <a href="#">Instagram</a>
+            <a href="#">Facebook</a>
+            <a href="#">WhatsApp</a>
+        </div>
+    </footer>
+
+    <!-- INTERACTION SCRIPT -->
+    <script>
+        function filterCatalog(category, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const cards = document.querySelectorAll('.product-card');
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        let cartCount = 0;
+        function addToBag(productName) {
+            cartCount++;
+            document.querySelector('.cart-badge').textContent = cartCount;
+            alert(`"${productName}" has been added to your shopping bag.`);
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            alert('Your message has been received. Our concierge will be in touch shortly.');
+            e.target.reset();
+        }
+    </script>
+</body>
+</html>
