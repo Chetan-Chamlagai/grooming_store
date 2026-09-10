@@ -3,15 +3,27 @@
 session_start();
 
 // Database Connection
-$db_host = 'localhost';
-$db_user = 'root';
-$db_pass = '';
-$db_name = 'grooming_store';
-$port = 3307; // Custom XAMPP MySQL Port    
+require_once 'db.php';
 
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name, $port);
-if ($conn->connect_error) {
-    die("Database connection failed: " . $conn->connect_error);
+// Helper function to resolve relative paths for product images
+function fixProductImagePath($db_path) {
+    if (empty($db_path)) return null;
+
+    // Convert Windows backslashes to forward slashes and strip leading ../ or ./
+    $clean_path = str_replace('\\', '/', trim($db_path));
+    $clean_path = preg_replace('/^(\.\.\/|\.\/|\/)+/', '', $clean_path);
+
+    // If file exists under root (e.g., grooming_store/uploads/products/...)
+    if (file_exists(__DIR__ . '/' . $clean_path)) {
+        return $clean_path;
+    }
+
+    // If file was saved inside the admin subfolder (e.g., grooming_store/admin/uploads/products/...)
+    if (file_exists(__DIR__ . '/admin/' . $clean_path)) {
+        return 'admin/' . $clean_path;
+    }
+
+    return $clean_path;
 }
 
 // Map database categories to UI filter tags
@@ -978,7 +990,8 @@ $products_result = $conn->query($sql);
         <div class="nav-actions">
             <?php if (isset($_SESSION['user_id'])): ?>
                 <a href="account.php" class="nav-auth-link">Account</a>
-                <a href="logout.php" class="nav-auth-link" onclick="return confirm('Are you sure you want to sign out of your account?');">Sign Out</a>            <?php else: ?>
+                <a href="logout.php" class="nav-auth-link" onclick="return confirm('Are you sure you want to sign out of your account?');">Sign Out</a>
+            <?php else: ?>
                 <a href="login.php" class="nav-auth-link">Sign In</a>
             <?php endif; ?>
             
@@ -1047,11 +1060,16 @@ $products_result = $conn->query($sql);
                 <?php while($prod = $products_result->fetch_assoc()): ?>
                     <?php 
                         $ui_cat = $category_map[$prod['category']] ?? 'general';
+                        $display_photo = fixProductImagePath($prod['photo']);
                     ?>
                     <div class="product-card" data-category="<?php echo htmlspecialchars($ui_cat); ?>">
                         <div class="product-img-area">
-                            <?php if (!empty($prod['photo']) && file_exists($prod['photo'])): ?>
-                                <img src="<?php echo htmlspecialchars($prod['photo']); ?>" alt="<?php echo htmlspecialchars($prod['title']); ?>">
+                            <?php if (!empty($display_photo)): ?>
+                                <img src="<?php echo htmlspecialchars($display_photo); ?>" 
+                                     alt="<?php echo htmlspecialchars($prod['title']); ?>"
+                                     style="width: 100%; height: 100%; object-fit: cover;"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <span class="product-silhouette" style="display: none;">OG &bull; <?php echo sprintf("%02d", $prod['id']); ?></span>
                             <?php else: ?>
                                 <span class="product-silhouette">OG &bull; <?php echo sprintf("%02d", $prod['id']); ?></span>
                             <?php endif; ?>
@@ -1098,7 +1116,7 @@ $products_result = $conn->query($sql);
         </div>
     </section>
 
-  <!-- INQUIRY SECTION -->
+    <!-- INQUIRY SECTION -->
     <section class="inquiry" id="inquiry">
         <div class="inquiry-info">
             <span class="section-eyebrow">Personal Concierge</span>
@@ -1115,34 +1133,34 @@ $products_result = $conn->query($sql);
             </div>
         </div>
         <form class="inquiry-form" method="POST" action="submit_inquiry.php">
-        <div class="form-row">
-            <div class="form-group">
-                <label>First Name</label>
-                <input type="text" name="first_name" placeholder="Rohan" required>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" name="first_name" placeholder="Rohan" required>
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" name="last_name" placeholder="Sharma">
+                </div>
             </div>
             <div class="form-group">
-                <label>Last Name</label>
-                <input type="text" name="last_name" placeholder="Sharma">
+                <label>Email Address</label>
+                <input type="email" name="email" placeholder="you@example.com" required>
             </div>
-        </div>
-        <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" name="email" placeholder="you@example.com" required>
-        </div>
-        <div class="form-group">
-            <label>Subject / Interest</label>
-            <select name="subject">
-                <option value="General Inquiry">General Inquiry</option>
-                <option value="Bespoke Consultation">Bespoke Consultation</option>
-                <option value="Order Status">Order Status</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Message</label>
-            <textarea name="message" placeholder="Write your message here..." required></textarea>
-        </div>
-        <button type="submit" class="btn-primary" style="width: 100%;">Send Inquiry</button>
-    </form>
+            <div class="form-group">
+                <label>Subject / Interest</label>
+                <select name="subject">
+                    <option value="General Inquiry">General Inquiry</option>
+                    <option value="Bespoke Consultation">Bespoke Consultation</option>
+                    <option value="Order Status">Order Status</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Message</label>
+                <textarea name="message" placeholder="Write your message here..." required></textarea>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%;">Send Inquiry</button>
+        </form>
     </section>
 
     <!-- CHECKOUT MODAL -->
@@ -1220,7 +1238,7 @@ $products_result = $conn->query($sql);
         </div>
     </footer>
 
-    <!-- CATALOG FILTER & FORM SCRIPTS -->
+    <!-- CATALOG FILTER SCRIPT -->
     <script>
         function filterCatalog(category, btn) {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1234,12 +1252,6 @@ $products_result = $conn->query($sql);
                     card.style.display = 'none';
                 }
             });
-        }
-
-        function handleFormSubmit(e) {
-            e.preventDefault();
-            alert('Your message has been received. Our concierge will be in touch shortly.');
-            e.target.reset();
         }
     </script>
 </body>

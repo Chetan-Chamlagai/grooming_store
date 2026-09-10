@@ -15,6 +15,7 @@ $view = $_GET['view'] ?? 'dashboard';
 $allowed_views = [
     'dashboard',
     'users',
+    'user_address',
     'orders',
     'products_add',
     'products_update',
@@ -254,6 +255,7 @@ if (!in_array($view, $allowed_views)) {
         <ul class="sidebar-menu">
             <li><a href="?view=dashboard" class="<?php if($view=='dashboard') echo 'active'; ?>">Dashboard</a></li>
             <li><a href="?view=users" class="<?php if($view=='users') echo 'active'; ?>">Users</a></li>
+            <li><a href="?view=user_address" class="<?php if($view=='user_address') echo 'active'; ?>">User Address</a></li>
             <li><a href="?view=orders" class="<?php if($view=='orders') echo 'active'; ?>">Orders</a></li>
             <li><a href="?view=products_add" class="<?php if(strpos($view, 'products') === 0) echo 'active'; ?>">Products</a></li>
             <li><a href="?view=products_add" class="sidebar-sub <?php if($view=='products_add') echo 'active'; ?>">- Add</a></li>

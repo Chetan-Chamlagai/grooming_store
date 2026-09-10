@@ -27,7 +27,7 @@ VALUES
      'Premium full-grain leather wallet.',
      5200.00,
      'wallets',
-     'leather-wallet.jpg',
+     'uploads\products\leather-wallet.jpg',
      20,
      'active'),
 
@@ -35,7 +35,7 @@ VALUES
      'Luxury fragrance with rich woody notes.',
      14500.00,
      'fragrances',
-     'santal-royal.jpg',
+     'uploads\products\santal-royal.jpg',
      15,
      'active'),
 
@@ -43,7 +43,7 @@ VALUES
      'Elegant minimalist chronograph watch.',
      28500.00,
      'watches',
-     'chronograph-watch.jpg',
+     'uploads\products\chronograph-watch.jpg',
      5,
      'active');
 

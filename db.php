@@ -4,9 +4,8 @@ $host = 'localhost';
 $db   = 'grooming_store';
 $user = 'root';
 $pass = ''; // Default XAMPP password is empty
-$port = 3307; // Custom XAMPP MySQL Port
 
-$conn = new mysqli($host, $user, $pass, $db, $port);
+$conn = new mysqli($host, $user, $pass, $db);
 
 if ($conn->connect_error) {
     die("Database Connection Failed: " . $conn->connect_error);
