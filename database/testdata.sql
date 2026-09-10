@@ -1,3 +1,5 @@
+USE grooming_store;
+
 INSERT INTO users
     (full_name, email, phone_number, password_hash, role)
 VALUES
