@@ -1097,7 +1097,7 @@ $products_result = $conn->query($sql);
         </div>
     </section>
 
-    <!-- INQUIRY SECTION -->
+  <!-- INQUIRY SECTION -->
     <section class="inquiry" id="inquiry">
         <div class="inquiry-info">
             <span class="section-eyebrow">Personal Concierge</span>
@@ -1113,35 +1113,35 @@ $products_result = $conn->query($sql);
                 <span class="inquiry-detail-val">Damak, Jhapa, Nepal</span>
             </div>
         </div>
-        <form class="inquiry-form" onsubmit="handleFormSubmit(event)">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>First Name</label>
-                    <input type="text" placeholder="Rohan" required>
-                </div>
-                <div class="form-group">
-                    <label>Last Name</label>
-                    <input type="text" placeholder="Sharma">
-                </div>
+        <form class="inquiry-form" method="POST" action="submit_inquiry.php">
+        <div class="form-row">
+            <div class="form-group">
+                <label>First Name</label>
+                <input type="text" name="first_name" placeholder="Rohan" required>
             </div>
             <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" placeholder="you@example.com" required>
+                <label>Last Name</label>
+                <input type="text" name="last_name" placeholder="Sharma">
             </div>
-            <div class="form-group">
-                <label>Subject / Interest</label>
-                <select>
-                    <option>General Inquiry</option>
-                    <option>Bespoke Consultation</option>
-                    <option>Order Status</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Message</label>
-                <textarea placeholder="Write your message here..." required></textarea>
-            </div>
-            <button type="submit" class="btn-primary" style="width: 100%;">Send Inquiry</button>
-        </form>
+        </div>
+        <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group">
+            <label>Subject / Interest</label>
+            <select name="subject">
+                <option value="General Inquiry">General Inquiry</option>
+                <option value="Bespoke Consultation">Bespoke Consultation</option>
+                <option value="Order Status">Order Status</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Message</label>
+            <textarea name="message" placeholder="Write your message here..." required></textarea>
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%;">Send Inquiry</button>
+    </form>
     </section>
 
     <!-- CHECKOUT MODAL -->
