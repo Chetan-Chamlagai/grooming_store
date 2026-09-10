@@ -977,8 +977,7 @@ $products_result = $conn->query($sql);
         <div class="nav-actions">
             <?php if (isset($_SESSION['user_id'])): ?>
                 <a href="account.php" class="nav-auth-link">Account</a>
-                <a href="logout.php" class="nav-auth-link">Sign Out</a>
-            <?php else: ?>
+                <a href="logout.php" class="nav-auth-link" onclick="return confirm('Are you sure you want to sign out of your account?');">Sign Out</a>            <?php else: ?>
                 <a href="login.php" class="nav-auth-link">Sign In</a>
             <?php endif; ?>
             
