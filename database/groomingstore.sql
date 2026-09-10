@@ -1,77 +1,82 @@
---This is sql for database setup, import this database
-
--- Database Creation
-CREATE DATABASE IF NOT EXISTS grooming_store;
+CREATE DATABASE IF NOT EXISTS grooming_store DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE grooming_store;
 
--- 1. Users Table (Handles credentials, username, phone, and roles)
-CREATE TABLE users (
+-- 1. Users Table
+CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    full_name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) NOT NULL UNIQUE,
+    full_name VARCHAR(150) NOT NULL,
+    email VARCHAR(191) NOT NULL UNIQUE,
+    phone_number VARCHAR(50) DEFAULT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    phone_number VARCHAR(20) NOT NULL,
-    role ENUM('customer', 'admin') DEFAULT 'customer',
+    role VARCHAR(20) DEFAULT 'customer',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 2. User Addresses Table (Manages shipping and delivery locations)
-CREATE TABLE user_addresses (
+-- 2. User Addresses Table
+CREATE TABLE IF NOT EXISTS user_addresses (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     address_line VARCHAR(255) NOT NULL,
     city VARCHAR(100) NOT NULL,
     province VARCHAR(100) NOT NULL,
-    postal_code VARCHAR(20) DEFAULT NULL,
-    is_default BOOLEAN DEFAULT TRUE,
+    postal_code VARCHAR(20) NOT NULL,
+    is_default TINYINT(1) DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 3. Products Table (Covers watches, wallets, and fragrances)
-CREATE TABLE products (
+-- 3. Products Table (Category restricted to ENUM)
+CREATE TABLE IF NOT EXISTS products (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(150) NOT NULL,
+    title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
-    category ENUM('watches', 'wallets', 'fragrances') NOT NULL,
-    photo VARCHAR(255) NOT NULL,
-    rating DECIMAL(2, 1) DEFAULT 0.0,
+    price DECIMAL(10,2) NOT NULL,
+    category ENUM('wallets', 'fragrances', 'watches') NOT NULL,
+    photo VARCHAR(255) DEFAULT NULL,
     stock_quantity INT NOT NULL DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+    status VARCHAR(20) DEFAULT 'active'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 4. Orders Table (Tracks order progress and totals)
-CREATE TABLE orders (
+-- 4. Inquiries Table
+CREATE TABLE IF NOT EXISTS inquiries (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(191) NOT NULL,
+    subject VARCHAR(100) NOT NULL,
+    message TEXT NOT NULL,
+    status ENUM('unread', 'read', 'responded') DEFAULT 'unread',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 5. Orders Table
+CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    address_id INT NOT NULL,
-    total_amount DECIMAL(10, 2) NOT NULL,
-    payment_status ENUM('Pending', 'Completed', 'Failed') DEFAULT 'Pending',
-    order_status ENUM('Created', 'Picked Up', 'On the Way', 'Delivered') DEFAULT 'Created',
+    total_amount DECIMAL(10,2) NOT NULL,
+    order_status VARCHAR(50) DEFAULT 'Pending',
+    payment_status VARCHAR(50) DEFAULT 'Pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (address_id) REFERENCES user_addresses(id)
-);
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 5. Order Items Table (Relates purchased products to specific orders)
-CREATE TABLE order_items (
+-- 6. Order Items Table
+CREATE TABLE IF NOT EXISTS order_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
     product_id INT NOT NULL,
     quantity INT NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(id)
-);
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 6. Payments Table (Logs Khalti transaction details)
-CREATE TABLE payments (
+-- 7. Payments Table
+CREATE TABLE IF NOT EXISTS payments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
-    pidx VARCHAR(255) NOT NULL UNIQUE,
-    transaction_id VARCHAR(255) DEFAULT NULL,
-    amount DECIMAL(10, 2) NOT NULL,
-    status VARCHAR(50) NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    payment_method VARCHAR(50) NOT NULL,
+    status VARCHAR(50) DEFAULT 'Completed',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
