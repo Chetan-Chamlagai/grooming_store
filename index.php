@@ -1,3 +1,29 @@
+<?php
+// index.php - Oggentleme Unified Client Storefront
+session_start();
+
+// Database Connection
+$db_host = 'localhost';
+$db_user = 'root';
+$db_pass = '';
+$db_name = 'grooming_store';
+
+$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+if ($conn->connect_error) {
+    die("Database connection failed: " . $conn->connect_error);
+}
+
+// Map database categories to UI filter tags
+$category_map = [
+    'fragrances' => 'fragrance',
+    'watches'    => 'timepiece',
+    'wallets'    => 'leather'
+];
+
+// Fetch active products
+$sql = "SELECT id, title, description, price, category, photo, stock_quantity FROM products WHERE status = 'active' ORDER BY id DESC";
+$products_result = $conn->query($sql);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,32 +37,22 @@
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script>
         (function() {
-            emailjs.init("tbh4MzQaE0W5pVfQT"); // Your Public Key
+            emailjs.init("tbh4MzQaE0W5pVfQT");
         })();
 
-        // EmailJS Configuration
         const EMAILJS_SERVICE_ID = 'service_037qe38';
         const EMAILJS_TEMPLATE_ID = 'template_5o44yuh';
 
-        // 1. Calculate Cart Totals
         function calculateCartTotals() {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const tax = subtotal * 0.13; // 13% VAT
-            const shipping = subtotal > 0 ? 150 : 0; // Flat delivery fee in Rs.
+            const tax = subtotal * 0.13;
+            const shipping = subtotal > 0 ? 150 : 0;
             const grandTotal = subtotal + tax + shipping;
 
-            return {
-                cart,
-                subtotal,
-                tax,
-                shipping,
-                grandTotal
-            };
+            return { cart, subtotal, tax, shipping, grandTotal };
         }
 
-        // 2. Open and Close Modal Functions
         function openCheckout() {
             renderCartModal();
             document.getElementById('checkoutModal').style.display = 'flex';
@@ -46,7 +62,6 @@
             document.getElementById('checkoutModal').style.display = 'none';
         }
 
-        // 3. Render Cart Items & Bill Breakdown inside Modal
         function renderCartModal() {
             const { cart, subtotal, tax, shipping, grandTotal } = calculateCartTotals();
             const itemsList = document.getElementById('cartItemsList');
@@ -58,24 +73,32 @@
                     <div class="cart-item-row">
                         <div>
                             <strong>${item.name}</strong>
-                            <div style="color: var(--text-secondary); font-size: 9px;">Qty: ${item.quantity}</div>
+                            <div style="color: var(--text-secondary); font-size: 9px;">Qty: ${item.quantity} &bull; Rs. ${item.price.toLocaleString()} each</div>
                         </div>
-                        <span>Rs. ${(item.price * item.quantity).toLocaleString()}</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span>Rs. ${(item.price * item.quantity).toLocaleString()}</span>
+                            <button onclick="removeFromBag(${index})" style="background:none; border:none; color: #992222; font-size: 10px; cursor:pointer;">&times;</button>
+                        </div>
                     </div>
                 `).join('');
             }
 
-            // Update Bill Summary Elements
             document.getElementById('billSubtotal').textContent = `Rs. ${subtotal.toLocaleString()}`;
             document.getElementById('billTax').textContent = `Rs. ${tax.toLocaleString()}`;
             document.getElementById('billShipping').textContent = `Rs. ${shipping.toLocaleString()}`;
             document.getElementById('billGrandTotal').textContent = `Rs. ${grandTotal.toLocaleString()}`;
         }
 
-        // 4. Main Checkout Handler
+        function removeFromBag(index) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartBadge();
+            renderCartModal();
+        }
+
         async function processCheckout(event) {
             event.preventDefault();
-
             const { cart, subtotal, tax, shipping, grandTotal } = calculateCartTotals();
 
             if (cart.length === 0) {
@@ -83,15 +106,12 @@
                 return;
             }
 
-            // Format item list for the email body
             const orderSummary = cart.map(item => 
-                `- ${item.name} | Qty: ${item.quantity} | Unit: Rs. ${item.price.toLocaleString()} | Total: Rs. ${(item.price * item.quantity).toLocaleString()}`
+                `- ${item.name} (ID: ${item.id}) | Qty: ${item.quantity} | Unit: Rs. ${item.price.toLocaleString()} | Total: Rs. ${(item.price * item.quantity).toLocaleString()}`
             ).join("\n");
 
-            // Generate Order Identifier
             const orderId = "OG-" + Math.floor(100000 + Math.random() * 900000);
 
-            // Map form values to EmailJS Template Variables
             const templateParams = {
                 order_id: orderId,
                 customer_name: document.getElementById('custName').value,
@@ -106,7 +126,6 @@
             };
 
             try {
-                // Send email via EmailJS
                 const response = await emailjs.send(
                     EMAILJS_SERVICE_ID, 
                     EMAILJS_TEMPLATE_ID, 
@@ -114,7 +133,6 @@
                 );
 
                 if (response.status === 200) {
-                    // Store order record in LocalStorage for Admin Dashboard
                     const existingOrders = JSON.parse(localStorage.getItem('orders')) || [];
                     existingOrders.push({
                         ...templateParams,
@@ -124,7 +142,6 @@
                     });
                     localStorage.setItem('orders', JSON.stringify(existingOrders));
 
-                    // Clear Cart & Reset UI Counter
                     localStorage.setItem('cart', JSON.stringify([]));
                     updateCartBadge();
                     closeCheckout();
@@ -133,25 +150,23 @@
                     event.target.reset();
                 }
             } catch (error) {
-                console.error('EmailJS Checkout Error:', error);
-                alert('Failed to submit order. Please check your network connection and try again.');
+                console.error('Checkout Error:', error);
+                alert('Failed to submit order. Please check your connection and try again.');
             }
         }
 
-        // 5. Add to Cart Logic with Price Mapping
-        function addToBag(productName, price) {
+        function addToBag(productId, productName, price) {
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
-            
-            const existingIndex = cart.findIndex(item => item.name === productName);
+            const existingIndex = cart.findIndex(item => item.id === productId);
+
             if (existingIndex > -1) {
                 cart[existingIndex].quantity += 1;
             } else {
-                cart.push({ name: productName, price: price, quantity: 1 });
+                cart.push({ id: productId, name: productName, price: price, quantity: 1 });
             }
 
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartBadge();
-            
             alert(`"${productName}" has been added to your shopping bag.`);
         }
 
@@ -162,7 +177,6 @@
             if (badge) badge.textContent = totalCount;
         }
 
-        // Update badge state on initial load
         document.addEventListener('DOMContentLoaded', updateCartBadge);
     </script>
 
@@ -184,9 +198,7 @@
             --borders: #D8C39A;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
 
         body {
             font-family: 'Montserrat', sans-serif;
@@ -196,12 +208,9 @@
             line-height: 1.6;
         }
 
-        /* --- NAVIGATION --- */
         nav {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 1000;
             display: flex;
             align-items: center;
@@ -231,9 +240,7 @@
             object-fit: contain;
         }
 
-        .nav-logo span {
-            color: var(--brand-gold);
-        }
+        .nav-logo span { color: var(--brand-gold); }
 
         .nav-links {
             display: flex;
@@ -251,9 +258,7 @@
             transition: color 0.3s ease;
         }
 
-        .nav-links a:hover, .nav-links a.active {
-            color: var(--brand-gold);
-        }
+        .nav-links a:hover, .nav-links a.active { color: var(--brand-gold); }
 
         .nav-actions {
             display: flex;
@@ -271,9 +276,7 @@
             transition: color 0.3s;
         }
 
-        .nav-auth-link:hover {
-            color: var(--brand-gold);
-        }
+        .nav-auth-link:hover { color: var(--brand-gold); }
 
         .nav-cart-btn {
             background: none;
@@ -297,7 +300,6 @@
             border-radius: 50%;
         }
 
-        /* --- HERO SECTION --- */
         header.hero {
             min-height: 100vh;
             display: grid;
@@ -431,7 +433,6 @@
             color: var(--text-secondary);
         }
 
-        /* --- STATS BAR --- */
         .stats-bar {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -446,9 +447,7 @@
             border-right: 1px solid var(--borders);
         }
 
-        .stat-item:last-child {
-            border-right: none;
-        }
+        .stat-item:last-child { border-right: none; }
 
         .stat-number {
             font-family: 'Cormorant Garamond', serif;
@@ -467,10 +466,7 @@
             color: var(--text-secondary);
         }
 
-        /* --- CATALOG SECTION --- */
-        section.catalog {
-            padding: 100px 60px;
-        }
+        section.catalog { padding: 100px 60px; }
 
         .section-header {
             text-align: center;
@@ -555,18 +551,13 @@
             justify-content: center;
             border-bottom: 1px solid var(--borders);
             position: relative;
+            overflow: hidden;
         }
 
-        .product-tag {
-            position: absolute;
-            top: 14px;
-            left: 14px;
-            background: var(--brand-gold);
-            color: #FFFFFF;
-            font-size: 8px;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            padding: 4px 10px;
+        .product-img-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .product-silhouette {
@@ -604,6 +595,11 @@
             color: var(--text-secondary);
             font-weight: 300;
             margin-bottom: 12px;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .product-footer-row {
@@ -642,7 +638,6 @@
             color: #FFFFFF;
         }
 
-        /* --- DARK SHOWCASE SECTION --- */
         section.dark-showcase {
             background-color: var(--dark-section);
             color: #FFFFFF;
@@ -706,9 +701,7 @@
             background: rgba(255,255,255,0.01);
         }
 
-        .dark-monogram-emblem {
-            text-align: center;
-        }
+        .dark-monogram-emblem { text-align: center; }
 
         .dark-monogram-emblem span {
             font-family: 'Cormorant Garamond', serif;
@@ -727,7 +720,6 @@
             color: #8A857B;
         }
 
-        /* --- CONTACT / INQUIRY SECTION --- */
         section.inquiry {
             padding: 100px 60px;
             background-color: var(--bg-main);
@@ -754,9 +746,7 @@
             letter-spacing: 0.04em;
         }
 
-        .inquiry-detail {
-            margin-bottom: 20px;
-        }
+        .inquiry-detail { margin-bottom: 20px; }
 
         .inquiry-detail-label {
             font-size: 8px;
@@ -822,13 +812,10 @@
             min-height: 100px;
         }
 
-        /* --- CHECKOUT MODAL STYLES --- */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: rgba(17, 17, 17, 0.85);
             backdrop-filter: blur(8px);
             z-index: 2000;
@@ -851,8 +838,7 @@
 
         .modal-close {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 20px; right: 20px;
             background: none;
             border: none;
             font-size: 28px;
@@ -907,7 +893,6 @@
             margin-top: 4px;
         }
 
-        /* --- FOOTER --- */
         footer {
             background-color: var(--dark-section);
             color: #FFFFFF;
@@ -926,9 +911,7 @@
             color: #FFFFFF;
         }
 
-        .footer-logo span {
-            color: var(--gold-on-dark);
-        }
+        .footer-logo span { color: var(--gold-on-dark); }
 
         .footer-copy {
             font-size: 9px;
@@ -952,19 +935,16 @@
             transition: color 0.3s;
         }
 
-        .footer-links a:hover {
-            color: var(--gold-on-dark);
-        }
+        .footer-links a:hover { color: var(--gold-on-dark); }
 
-        /* --- RESPONSIVE MEDIA QUERIES --- */
         @media (max-width: 1024px) {
             nav { padding: 20px 30px; }
-            .hero { grid-template-columns: 1fr; min-height: auto; }
+            header.hero { grid-template-columns: 1fr; min-height: auto; }
             .hero-content { padding: 100px 30px 60px; }
             .hero-visual { min-height: 350px; }
             .product-grid { grid-template-columns: repeat(2, 1fr); }
-            .dark-showcase { grid-template-columns: 1fr; padding: 80px 30px; }
-            .inquiry { grid-template-columns: 1fr; padding: 80px 30px; }
+            section.dark-showcase { grid-template-columns: 1fr; padding: 80px 30px; }
+            section.inquiry { grid-template-columns: 1fr; padding: 80px 30px; }
         }
 
         @media (max-width: 768px) {
@@ -984,7 +964,10 @@
 
     <!-- NAVIGATION -->
     <nav>
-        <a class="nav-logo" href="#"><img src="images/logo.png" alt="Oggentleme Logo"><span>.</span></a>
+        <a class="nav-logo" href="#">
+            <img src="images/logo.png" alt="Oggentleme" onerror="this.style.display='none'">
+            OGGENTLEME<span>.</span>
+        </a>
         <ul class="nav-links">
             <li><a href="#home" class="active">Home</a></li>
             <li><a href="#catalog">Collection</a></li>
@@ -992,7 +975,13 @@
             <li><a href="#inquiry">Contact</a></li>
         </ul>
         <div class="nav-actions">
-            <a href="login.html" class="nav-auth-link">Sign In</a>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <a href="account.php" class="nav-auth-link">Account</a>
+                <a href="logout.php" class="nav-auth-link">Sign Out</a>
+            <?php else: ?>
+                <a href="login.php" class="nav-auth-link">Sign In</a>
+            <?php endif; ?>
+            
             <button class="nav-cart-btn" onclick="openCheckout()">
                 Bag <span class="cart-badge">0</span>
             </button>
@@ -1038,12 +1027,12 @@
         </div>
     </div>
 
-    <!-- CATALOG SECTION -->
+    <!-- CATALOG SECTION (POPULATED VIA DATABASE) -->
     <section class="catalog" id="catalog">
         <div class="section-header">
             <span class="section-eyebrow">The Masterpieces</span>
             <h2 class="section-title">Curated Essentials</h2>
-            <p class="section-desc">Each artifact is developed with uncompromising architectural precision and uncompromising masculine elegance.</p>
+            <p class="section-desc">Each artifact is developed with architectural precision and uncompromising masculine elegance.</p>
         </div>
 
         <div class="filter-bar">
@@ -1054,103 +1043,33 @@
         </div>
 
         <div class="product-grid" id="productGrid">
-            <!-- Item 1 -->
-            <div class="product-card" data-category="fragrance">
-                <div class="product-img-area">
-                    <span class="product-tag">Bestseller</span>
-                    <span class="product-silhouette">OG &bull; 01</span>
-                </div>
-                <div class="product-info">
-                    <span class="product-category">Eau de Parfum &bull; 50ml</span>
-                    <h3 class="product-name">Noir Absolu</h3>
-                    <p class="product-notes">Oud &bull; Dark Amber &bull; Vetiver</p>
-                    <div class="product-footer-row">
-                        <span class="product-price">Rs. 3,800</span>
-                        <button class="btn-add" onclick="addToBag('Noir Absolu', 3800)">Add to Bag</button>
+            <?php if ($products_result && $products_result->num_rows > 0): ?>
+                <?php while($prod = $products_result->fetch_assoc()): ?>
+                    <?php 
+                        $ui_cat = $category_map[$prod['category']] ?? 'general';
+                    ?>
+                    <div class="product-card" data-category="<?php echo htmlspecialchars($ui_cat); ?>">
+                        <div class="product-img-area">
+                            <?php if (!empty($prod['photo']) && file_exists($prod['photo'])): ?>
+                                <img src="<?php echo htmlspecialchars($prod['photo']); ?>" alt="<?php echo htmlspecialchars($prod['title']); ?>">
+                            <?php else: ?>
+                                <span class="product-silhouette">OG &bull; <?php echo sprintf("%02d", $prod['id']); ?></span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category"><?php echo htmlspecialchars($prod['category']); ?> &bull; In Stock (<?php echo intval($prod['stock_quantity']); ?>)</span>
+                            <h3 class="product-name"><?php echo htmlspecialchars($prod['title']); ?></h3>
+                            <p class="product-notes"><?php echo htmlspecialchars($prod['description']); ?></p>
+                            <div class="product-footer-row">
+                                <span class="product-price">Rs. <?php echo number_format($prod['price']); ?></span>
+                                <button class="btn-add" onclick="addToBag(<?php echo $prod['id']; ?>, '<?php echo htmlspecialchars(addslashes($prod['title'])); ?>', <?php echo (float)$prod['price']; ?>)">Add to Bag</button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Item 2 -->
-            <div class="product-card" data-category="fragrance">
-                <div class="product-img-area">
-                    <span class="product-silhouette">OG &bull; 02</span>
-                </div>
-                <div class="product-info">
-                    <span class="product-category">Eau de Parfum &bull; 50ml</span>
-                    <h3 class="product-name">Blanc Santal</h3>
-                    <p class="product-notes">Sandalwood &bull; White Musk &bull; Iris</p>
-                    <div class="product-footer-row">
-                        <span class="product-price">Rs. 3,200</span>
-                        <button class="btn-add" onclick="addToBag('Blanc Santal', 3200)">Add to Bag</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Item 3 -->
-            <div class="product-card" data-category="timepiece">
-                <div class="product-img-area">
-                    <span class="product-tag">Limited</span>
-                    <span class="product-silhouette">OG &bull; 03</span>
-                </div>
-                <div class="product-info">
-                    <span class="product-category">Automatic &bull; Sapphire Glass</span>
-                    <h3 class="product-name">Chronometre Noir</h3>
-                    <p class="product-notes">Matte Black &bull; Gold Indices</p>
-                    <div class="product-footer-row">
-                        <span class="product-price">Rs. 18,500</span>
-                        <button class="btn-add" onclick="addToBag('Chronometre Noir', 18500)">Add to Bag</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Item 4 -->
-            <div class="product-card" data-category="leather">
-                <div class="product-img-area">
-                    <span class="product-silhouette">OG &bull; 04</span>
-                </div>
-                <div class="product-info">
-                    <span class="product-category">Full-Grain Calfskin</span>
-                    <h3 class="product-name">Sartorial Bifold Wallet</h3>
-                    <p class="product-notes">Espresso Leather &bull; Gold Foil Monogram</p>
-                    <div class="product-footer-row">
-                        <span class="product-price">Rs. 4,500</span>
-                        <button class="btn-add" onclick="addToBag('Sartorial Bifold Wallet', 4500)">Add to Bag</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Item 5 -->
-            <div class="product-card" data-category="fragrance">
-                <div class="product-img-area">
-                    <span class="product-silhouette">OG &bull; 05</span>
-                </div>
-                <div class="product-info">
-                    <span class="product-category">Eau de Parfum &bull; 50ml</span>
-                    <h3 class="product-name">Oud Royale</h3>
-                    <p class="product-notes">Agarwood &bull; Rose Oud &bull; Saffron</p>
-                    <div class="product-footer-row">
-                        <span class="product-price">Rs. 4,900</span>
-                        <button class="btn-add" onclick="addToBag('Oud Royale', 4900)">Add to Bag</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Item 6 -->
-            <div class="product-card" data-category="timepiece">
-                <div class="product-img-area">
-                    <span class="product-silhouette">OG &bull; 06</span>
-                </div>
-                <div class="product-info">
-                    <span class="product-category">Minimalist &bull; Italian Leather</span>
-                    <h3 class="product-name">Monolith Timepiece</h3>
-                    <p class="product-notes">Brushed Steel &bull; Ivory Dial</p>
-                    <div class="product-footer-row">
-                        <span class="product-price">Rs. 14,200</span>
-                        <button class="btn-add" onclick="addToBag('Monolith Timepiece', 14200)">Add to Bag</button>
-                    </div>
-                </div>
-            </div>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <p style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary); padding: 50px;">No active products currently available in the collection.</p>
+            <?php endif; ?>
         </div>
     </section>
 
@@ -1237,9 +1156,7 @@
                     <span class="section-eyebrow">Your Bag</span>
                     <h3 class="section-title" style="font-size: 28px;">Order Summary</h3>
                     
-                    <div id="cartItemsList" class="cart-items-list">
-                        <!-- Dynamic items rendered via JS -->
-                    </div>
+                    <div id="cartItemsList" class="cart-items-list"></div>
 
                     <div class="bill-breakdown">
                         <div class="bill-row">
